@@ -1,41 +1,30 @@
 import sys, os
 import csv
+import re
 from collections import defaultdict, OrderedDict
 from optparse import OptionParser
 
-def swap(a,b):
-    if a > b:
-        return b,a
-    return a,b
+import common_function
 
-def read_edgelist_unweighted(filename,delimiter=None,nodetype=str):
-    """reads two-column edgelist, returns dictionary
-    mapping node -> set of neighbors and a list of edges
-    """
-    adj = defaultdict(set) # node to set of neighbors
-    edges = set()
-    nodes = set()
-    for line in open(filename, 'U'):
-        L = line.strip().split(delimiter)
-        ni,nj = nodetype(L[0]),nodetype(L[1]) # other columns ignored
-        if ni != nj: # skip any self-loops...
-            edges.add( swap(ni,nj) )
-            nodes.add(ni)
-            adj[ni].add(nj)
-            adj[nj].add(ni) # since undirected
-    return dict(adj), edges, nodes
+def remove_double_quote(text):
+    m = re.search(r"[\"]*([\w/]+)[\"]*", text)
+    if m:
+        return m.groups()[0]
+    else:
+        return ""
 
 def read_locus_probe_mapping(filename, delimiter=None, nodetype=str):
     mapping = dict() # dict with key = locus, value = probe
     for line in open(filename, 'U'):
-        print line
-        L = line.strip('"').split(delimiter)
-        print L
+        L = line.strip('').split(delimiter)
 
-        probe, locus = nodetype(L[0]), nodetype(L[1])
+        probe = remove_double_quote(nodetype(L[0]))
+        locus = remove_double_quote(nodetype(L[1]))
+
         if mapping.has_key(locus):
-            print "1 locus is not mapping to 1 probe"
-        mapping[locus] = probe
+            print "1 locus is not mapping to 1 probe: %s" % locus
+        else:
+            mapping[locus] = probe
 
     # print mapping
     return mapping
@@ -58,10 +47,6 @@ def locus_to_probe_analysis(nodes, mapping):
 
     print("Locus without associate probe: %d" % len(locus_without_associative_probe))
 
-def write_edges_to_file(edges, filename):
-    output_file = open(filename, "w")
-    for item in edges:
-        output_file.write( "%s,%s\n" % (item[0], item[1]) )
 
 def grn_with_probe(edges, mapping):
     new_edges = set()
@@ -71,7 +56,7 @@ def grn_with_probe(edges, mapping):
         x, y = item
         # print("%s - %s - %s -%s" % (x, y, str(mapping.has_key(x)), str(mapping.has_key(y))))
         if(mapping.has_key(x) and mapping.has_key(y)):
-            new_edges.add( swap(x,y) )
+            new_edges.add( swap(mapping[x], mapping[y]) )
         else:
             edges_without_associative_probe.add( swap(x,y) )
 
@@ -121,6 +106,6 @@ if __name__ == '__main__':
     print "# start anaylysis..."
     locus_to_probe_analysis(nodes, locus_probe_mapping)
 
-    print "# create new network file, replacing locus with probe"
+    print "# create new Gene Network File with probe instead of locus ..."
     grn_with_probe(edges, locus_probe_mapping)
 
