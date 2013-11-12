@@ -1,0 +1,3 @@
+Number of connections in grn: 11354
+Number of removed nodes: 3950
+Number of remaining connections: 7381 (it should be 7404)

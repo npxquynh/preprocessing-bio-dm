@@ -1,0 +1,1 @@
+1	c,f	c,g	c,e	b,f	a,b	b,e	a,c	b,d
