@@ -51,7 +51,6 @@ def find_big_hubs(adj, MAX_DEGREE):
     for node in adj:
         if len(adj[node]) >= MAX_DEGREE:
             max_nodes.append(node)
-
     return max_nodes
 
 def node_degree(adj, nodes):
@@ -66,7 +65,7 @@ def node_degree(adj, nodes):
     """
     print "- Node with more than 3000 connections:"
     MAX_DEGREE = 3000
-    max_nodes = find_big_hubs(degree, MAX_DEGREE)
+    max_nodes = find_big_hubs(adj, MAX_DEGREE)
 
     # calculate connection for neighbors of those max_nodes
     print "Calculating the degree of neighbor nodes:"
