@@ -15,7 +15,7 @@ slgn = []
 t = 23
 blocks = []
 
-def readLgn():
+def read_lgn():
     global lgn
     global numOfGenes
     with open('At_LGN_genes.csv', 'rb') as f:
@@ -27,7 +27,7 @@ def readLgn():
     numOfGenes = len (lgn['probe'])
 
 
-def createSlgn():
+def create_slgn():
     global slgn
 
     for x in range(0, len (lgn['probe'])):
@@ -41,8 +41,8 @@ def createSlgn():
 
 
 
-def readBlocks():
-    print 'readBlocks'
+def read_blocks():
+    print 'read_blocks'
     global blocks
     #i = 0
     for dirpath, dirs, files in os.walk('pc1'):
@@ -66,7 +66,7 @@ def readBlocks():
 
            # i = i + 1
 
-def findGenesConnectedWithLGN(block, LGN):
+def find_genes_connected_with_LGN(block, LGN):
     # connected_nodes[i] = set() = nodes connected with LGN[i]
     connected_nodes = []
     for gene in LGN:
@@ -87,7 +87,7 @@ def findGenesConnectedWithLGN(block, LGN):
 #   [(1, 10), (1, 2, 3), (2)]
 #   0
 # Output: (1, 2, 3)
-def findConnectedNodesInSubLGN_1(connected_nodes, index):
+def find_connected_nodes_in_SubLGN_1(connected_nodes, index):
     # connected_nodes = list[set()]
     result = set()
     for (idx, nodes) in enumerate(connected_nodes):
@@ -111,7 +111,7 @@ def refine_list_intra(list_intra):
 #   [(1, 10), (1, 2, 3), (2)]
 #   0
 # Output: [1, 2, 3, 2]
-def findConnectedNodesInSubLGN_2(connected_nodes, index):
+def find_connected_nodes_in_SubLGN_2(connected_nodes, index):
     # connected_nodes = list[set()]
     result = list()
     for (idx, nodes) in enumerate(connected_nodes):
@@ -233,8 +233,8 @@ def refine_list_extra(list_extra):
 
     return list_extra
 
-def createListIntraExtra():
-    print 'createListIntraExtra'
+def create_list_intra_extra():
+    print 'create_list_intra_extra'
 
     global lgn
     global blocks
@@ -251,11 +251,11 @@ def createListIntraExtra():
     lgn_list = list(lgn['probe'])
 
     for block in blocks:
-        connected_nodes = findGenesConnectedWithLGN(block, lgn_set)
+        connected_nodes = find_genes_connected_with_LGN(block, lgn_set)
 
         # calculate list_intra
         for (index, gene) in enumerate(lgn['probe']):
-            connected_nodes_in_subLGN = findConnectedNodesInSubLGN_1(connected_nodes, index)
+            connected_nodes_in_subLGN = find_connected_nodes_in_SubLGN_1(connected_nodes, index)
             if connected_nodes_in_subLGN.__contains__(gene):
                 list_intra[gene] += 1
 
@@ -270,7 +270,7 @@ def createListIntraExtra():
         control = connection_in_extra_genes_step_0(block, lgn['probe'])
         control = connection_in_extra_genes_step_1(control, connected_nodes)
         for (index, gene) in enumerate(lgn['probe']):
-            connected_nodes_in_subLGN = findConnectedNodesInSubLGN_2(connected_nodes, index)
+            connected_nodes_in_subLGN = find_connected_nodes_in_SubLGN_2(connected_nodes, index)
             control = connection_in_extra_genes_step_2(control, connected_nodes_in_subLGN, index)
 
         list_extra = merge_list_extra(list_extra, control)
@@ -278,7 +278,7 @@ def createListIntraExtra():
 
     return list_intra, list_extra
 
-def calculateTPFN(list_intra, list_extra):
+def calculate_TPFN(list_intra, list_extra):
     global lgn
 
     f = [x / 100.0 for x in range(100)]
@@ -338,11 +338,11 @@ def statistical_result(TP, FN, FP):
     return SE
 
 if __name__ == '__main__':
-    readLgn()
-    createSlgn()
-    readBlocks()
-    list_intra, list_extra = createListIntraExtra()
-    TP, FN, FP = calculateTPFN(list_intra, list_extra)
+    read_lgn()
+    create_slgn()
+    read_blocks()
+    list_intra, list_extra = create_list_intra_extra()
+    TP, FN, FP = calculate_TPFN(list_intra, list_extra)
     SE = statistical_result(TP, FN, FP)
     pdb.set_trace()
 
