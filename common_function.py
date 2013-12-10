@@ -1,4 +1,7 @@
 import os
+from collections import defaultdict, OrderedDict
+import re
+from random import randrange
 
 def swap(a,b):
     if a > b:
@@ -22,6 +25,28 @@ def read_edgelist_unweighted(filename,delimiter=None,nodetype=str):
             adj[ni].add(nj)
             adj[nj].add(ni) # since undirected
     return dict(adj), edges, nodes
+
+def read_edgelist_get_node_unweighted(filename,delimiter=None,nodetype=str):
+    """reads two-column edgelist, returns dictionary
+    mapping node -> set of neighbors and a list of edges
+    """
+    nodes = set()
+    for line in open(filename, 'U'):
+        L = line.strip().split(delimiter)
+        ni,nj = nodetype(L[0]),nodetype(L[1]) # other columns ignored
+        nodes.add(ni)
+        nodes.add(nj)
+    return nodes
+
+def read_node_unweighted(filename, nodetype=str):
+    """reads two-column edgelist, returns dictionary
+    mapping node -> set of neighbors and a list of edges
+    """
+    nodes = set()
+    for line in open(filename, 'U'):
+        L = line.strip()
+        nodes.add(nodetype(L))
+    return nodes
 
 def write_edges_to_file(edges, filename):
     output_file = open(filename, "w")
@@ -65,3 +90,26 @@ def filter_nodes_with_smaller_degree(adj, nodes, MAX_DEGREE):
             filtered_nodes.add(node)
 
     return filtered_nodes
+
+tokenize = re.compile(r'(\d+)|(\D+)').findall
+
+def natural_sortkey(string):
+    return tuple(int(num) if num else alpha for num, alpha in tokenize(string))
+
+def find_csv_filenames(path_to_dir, suffix=".csv"):
+    filenames = os.listdir(path_to_dir)
+    # 0.csv, 1.csv, 2.csv, ..... , 10.csv
+    filenames = sorted(filenames, key=natural_sortkey)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
+
+def random_combination(set_n, k):
+    combination = set()
+    random_position = set()
+    for j in range( len(set_n) - k, len(set_n)):
+        t = randrange(0, j)
+        if t not in random_position:
+            random_position.add(t)
+        else:
+            random_position.add(j)
+
+    return [list(set_n)[i] for i in random_position]

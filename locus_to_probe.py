@@ -4,7 +4,7 @@ import re
 from collections import defaultdict, OrderedDict
 from optparse import OptionParser
 
-import common_function
+from common_function import *
 
 def remove_double_quote(text):
     m = re.search(r"[\"]*([\w/]+)[\"]*", text)
@@ -15,16 +15,21 @@ def remove_double_quote(text):
 
 def read_locus_probe_mapping(filename, delimiter=None, nodetype=str):
     mapping = dict() # dict with key = locus, value = probe
+    count = 0
     for line in open(filename, 'U'):
         L = line.strip('').split(delimiter)
 
         probe = remove_double_quote(nodetype(L[0]))
         locus = remove_double_quote(nodetype(L[1]))
 
-        if mapping.has_key(locus):
-            print "1 locus is not mapping to 1 probe: %s" % locus
-        else:
-            mapping[locus] = probe
+        print "%s %s" % (probe, locus)
+        # if mapping.has_key(locus):
+        #     print "1 locus is not mapping to 1 probe: %s" % locus
+        #     count = count + 1
+        # else:
+        mapping[locus] = probe
+
+    print "%d locuses map to more than 1 probe:" % count
 
     # print mapping
     return mapping

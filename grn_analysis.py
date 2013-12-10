@@ -1,9 +1,7 @@
 import sys, os
-from collections import defaultdict, OrderedDict
 from optparse import OptionParser
 
-import common_function
-
+from common_function import *
 
 def node_degree(adj, nodes):
     """
