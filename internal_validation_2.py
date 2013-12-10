@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+# internal_validation_2.py
+# Refactor code
+>>>>>>> b0f20e9bcd1324182d6ecc5e1be4200fc6c710b6
 
 import csv
 import os
@@ -141,13 +146,13 @@ def connection_in_extra_genes_step_0(block, lgn):
     for edge in block:
         try:
             # number of times it appears in the block
-            if control.has_key(edge[0]):
+            if edge[0] in control:
                 control[edge[0]][0] += 1
             else:
                 control[edge[0]] = [0] * number_of_LGN_genes
                 control[edge[0]][0] = 1
 
-            if control.has_key(edge[1]):
+            if edge[1] in control:
                 control[edge[1]][0] += 1
             else:
                 control[edge[1]] = [0] * number_of_LGN_genes
@@ -208,7 +213,7 @@ def connection_in_extra_genes_step_2(control, connected_nodes_in_subLGN, index):
 def merge_list_extra(list_extra, control):
     for key in control:
         # TODO: refactor with list_extra.get( , default_value)
-        if list_extra.has_key(key):
+        if key in list_extra:
             list_extra[key] = map(operator.add, list_extra[key], control[key])
         else:
             list_extra[key] = control[key]
