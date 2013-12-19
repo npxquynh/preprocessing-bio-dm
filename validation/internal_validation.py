@@ -159,7 +159,7 @@ class InternalValidation:
                 keys_to_be_deleted.append(key)
             else:
                 for j in range(2, max_length):
-                    self.list_extra[key][j] /= float(self.list_extra[key][1])
+                    self.list_extra[key][j] /= float(self.list_extra[key][0])
 
         for key in keys_to_be_deleted:
             self.list_extra.__delitem__(key)
