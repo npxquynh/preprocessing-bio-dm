@@ -158,8 +158,8 @@ class InternalValidation:
             if self.list_extra[key][1] == 0:
                 keys_to_be_deleted.append(key)
             else:
-                for j in range(2, max_length):
-                    self.list_extra[key][j] /= float(self.list_extra[key][0])
+                for k in range(2, max_length):
+                    self.list_extra[key][k] /= float(self.list_extra[key][0])
 
         for key in keys_to_be_deleted:
             self.list_extra.__delitem__(key)
@@ -180,7 +180,6 @@ class InternalValidation:
                 if connected_nodes_in_subLGN.__contains__(gene):
                     self.list_intra[gene] += 1
 
-            self.__refine_list_intra()
 
             """ calculate list_extra, we just simply do it for every genes in
             the block, and then we can remove those genes in LGN
@@ -189,11 +188,10 @@ class InternalValidation:
             control = self.__connection_in_extra_genes_step_1(control, connected_nodes)
             control = self.__connection_in_extra_genes_step_2(control, connected_nodes)
 
-            self.check_the_control(control)
-            # self.stat_the_control(control)
-
             self.__merge_list_extra(control)
-            # self.__refine_list_extra()
+
+        self.__refine_list_intra()
+        self.__refine_list_extra()
 
     def __generate_zero_matrices(self):
         f = [x / 100.0 for x in range(100)]
