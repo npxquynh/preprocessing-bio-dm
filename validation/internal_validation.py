@@ -29,6 +29,7 @@ class InternalValidation:
                         nodes.add(edge[0])
                 except IndexError:
                     print "Index error"
+            nodes = set(nodes) - set(self.genes_in_lgn)
             connected_nodes.append(nodes)
         return connected_nodes
 
@@ -102,7 +103,6 @@ class InternalValidation:
 
         connected_nodes = list[set()] ==> remember to 'flatten' them first
         """
-
         # use set() since we do not pay attention to how many times
         # extra genes connect with LGN
         nodes = set(helper.list_of_sets_to_list(connected_nodes))
@@ -169,6 +169,18 @@ class InternalValidation:
 
         # return list_extra
 
+    def check_the_control(self, control):
+        l = len(self.genes_in_lgn) + 2
+        result = []
+        for key in control:
+            for i in range(2, l):
+                if control[key][i] > control[key][1]:
+                    result.append(key)
+                    break
+
+        for gene in result:
+            print control[gene]
+
     def create_list_intra_extra(self):
         print 'create_list_intra_extra'
 
@@ -194,8 +206,10 @@ class InternalValidation:
             control = self.__connection_in_extra_genes_step_1(control, connected_nodes)
             control = self.__connection_in_extra_genes_step_2(control, connected_nodes)
 
+            self.check_the_control(control)
+
             self.__merge_list_extra(control)
-            self.__refine_list_extra()
+            # self.__refine_list_extra()
 
     def __generate_zero_matrices(self):
         f = [x / 100.0 for x in range(100)]
