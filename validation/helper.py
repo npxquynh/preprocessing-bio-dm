@@ -14,6 +14,14 @@ def list_of_sets_to_list(l):
             result.append(element)
     return result
 
+def count_element_in_list_of_sets(list_of_sets):
+    elements_list = list_of_sets_to_list(list_of_sets)
+    elements_set = set(elements_list)
+    result = dict()
+    for element in elements_set:
+        result[e] = elements_list.count(element)
+    return result
+
 def add_two_dim_array(array_1, array_2):
     nrows = len(array_1)
     ncols = len(array_1[0])

@@ -72,32 +72,21 @@ class InternalValidation:
         calculate c[0]: whether or not this 'extra gene' appear in a specific block
         """
         control = dict()
-
         number_of_LGN_genes = len(self.genes_in_lgn) + 2
 
-        for edge in block:
-            try:
-                # number of times it appears in the block
-                if edge[0] in control:
-                    control[edge[0]][0] += 1
-                else:
-                    control[edge[0]] = [0] * number_of_LGN_genes
-                    control[edge[0]][0] = 1
+        genes_in_block = helper.genes_from_edges(block)
+        extra_genes = set(genes_in_block) - set(self.genes_in_lgn)
 
-                if edge[1] in control:
-                    control[edge[1]][0] += 1
-                else:
-                    control[edge[1]] = [0] * number_of_LGN_genes
-                    control[edge[1]][0] = 1
+        """ since we do not care how many time extra genes appear in block
+        we ONLY pay attention to whether it appears or not
+        """
+        for gene in extra_genes:
+            control[gene] = [0] * number_of_LGN_genes
+            control[gene][0] = 1
 
-                # number of times it's connected with the LGN
-                # number of times it's connected with the subLGN
-                # will be calculated later
-
-            except IndexError:
-                print "Index error 2"
-            except KeyError:
-                pass
+            # number of times it's connected with the LGN - c[1]
+            # number of times it's connected with the subLGN - c[2]
+            # will be calculated later
 
         return control
 
@@ -109,36 +98,47 @@ class InternalValidation:
     # So I wonder whether my thinking is correct?
     def __connection_in_extra_genes_step_1(self, control, connected_nodes):
         """
-        calculate c[1]: number of times it's directly connected to the LGN
+        calculate c[1]: whether 'extra-gene' is directly connected to the LGN
 
         connected_nodes = list[set()] ==> remember to 'flatten' them first
         """
-        default = [0] * len(self.genes_in_lgn)
 
-        nodes = helper.list_of_sets_to_list(connected_nodes)
+        # use set() since we do not pay attention to how many times
+        # extra genes connect with LGN
+        nodes = set(helper.list_of_sets_to_list(connected_nodes))
         for gene in nodes:
-            try:
-                control.get(gene, default)[1] += 1
-            except IndexError:
-                print "Index error 3"
+            if gene in control:
+                control[gene][1] += 1
+            else:
+                # In the same block, this thing should never happen!!!
+                print "Problem!!! internal validation 1"
+                print gene
 
         return control
 
-    def __connection_in_extra_genes_step_2(self, control, connected_nodes_in_subLGN, index):
+    def __connection_in_extra_genes_step_2(self, control, connected_nodes):
         """
         calculate c[2] ... c[n+1]: number of times it's connected to SLGN(0), ...,
-        number of times it's connected to SLGN(i), ... ,
-        number of times it's connected to SLGN(n-1))
+        whether 'extra-gene' is connected to SLGN(i), ... ,
+        whether 'extra-gene' is connected to SLGN(n-1))
 
         connected_nodes_in_subLGN = list[]
         """
-        default = [0] * len(self.genes_in_lgn)
-
-        for gene in connected_nodes_in_subLGN:
-            try:
-                control.get(gene, default)[index + 2] += 1
-            except IndexError:
-                print "Index error 4"
+        number_of_LGN_genes = len(self.genes_in_lgn)
+        list_of_connected_nodes = helper.list_of_sets_to_list(connected_nodes)
+        calculated_node = set()
+        set_of_connected_nodes = set(list_of_connected_nodes)
+        for (index, set_of_genes) in enumerate(connected_nodes):
+            for gene in set_of_genes:
+                if gene in control:
+                    for j in range(0, number_of_LGN_genes):
+                        control[gene][j + 2] = 1
+                    if gene not in calculated_node:
+                        control[gene][index] = 0
+                else:
+                    # In the same block, this thing should never happen!!!
+                    print "Problem!!! internal validation 2"
+                    print gene
         return control
 
     def __merge_list_extra(self, control):
@@ -179,7 +179,7 @@ class InternalValidation:
         for block in self.blocks:
             connected_nodes = self.__find_genes_connected_with_LGN(block)
 
-            # calculate list_intra
+            """ calculate list_intra """
             for (index, gene) in enumerate(self.genes_in_lgn):
                 connected_nodes_in_subLGN = self.__find_connected_nodes_in_SubLGN_1(connected_nodes, index)
                 if connected_nodes_in_subLGN.__contains__(gene):
@@ -187,22 +187,17 @@ class InternalValidation:
 
             self.__refine_list_intra()
 
-            # calculate list_extra
-            flattened_connected_nodes = helper.list_of_sets_to_list(connected_nodes)
-            """ calculate list_extra, we just simply do it for every genes in the block, and
-            then we can remove those genes in LGN
+            """ calculate list_extra, we just simply do it for every genes in
+            the block, and then we can remove those genes in LGN
             """
-            # number_of_LGN_genes = len(lgn['probe'])
             control = self.__connection_in_extra_genes_step_0(block)
             control = self.__connection_in_extra_genes_step_1(control, connected_nodes)
-            for (index, gene) in enumerate(self.genes_in_lgn):
-                connected_nodes_in_subLGN = self.__find_connected_nodes_in_SubLGN_2(connected_nodes, index)
-                control = self.__connection_in_extra_genes_step_2(control, connected_nodes_in_subLGN, index)
+            control = self.__connection_in_extra_genes_step_2(control, connected_nodes)
 
             self.__merge_list_extra(control)
             self.__refine_list_extra()
 
-    def __generate_zero_matrices():
+    def __generate_zero_matrices(self):
         f = [x / 100.0 for x in range(100)]
         ncols = 100
         nrows = len(self.genes_in_lgn)
