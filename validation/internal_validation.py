@@ -73,7 +73,7 @@ class InternalValidation:
         calculate c[0]: whether or not this 'extra gene' appear in a specific block
         """
         control = dict()
-        number_of_LGN_genes = len(self.genes_in_lgn) + 2
+        max_length = len(self.genes_in_lgn) + 2
 
         genes_in_block = helper.genes_from_edges(block)
         extra_genes = set(genes_in_block) - set(self.genes_in_lgn)
@@ -82,7 +82,7 @@ class InternalValidation:
         we ONLY pay attention to whether it appears or not
         """
         for gene in extra_genes:
-            control[gene] = [0] * number_of_LGN_genes
+            control[gene] = [0] * max_length
             control[gene][0] = 1
 
             # number of times it's connected with the LGN - c[1]
@@ -131,10 +131,10 @@ class InternalValidation:
         for (index, set_of_genes) in enumerate(connected_nodes):
             for gene in set_of_genes:
                 if gene in control:
-                    for j in range(0, number_of_LGN_genes):
-                        control[gene][j + 2] = 1
+                    for k in range(0, number_of_LGN_genes):
+                        control[gene][k + 2] = 1
                     if gene not in calculated_node:
-                        control[gene][index] = 0
+                        control[gene][index + 2] = 0
                 else:
                     # In the same block, this thing should never happen!!!
                     print "Problem!!! internal validation 2"
@@ -143,13 +143,10 @@ class InternalValidation:
 
     def __merge_list_extra(self, control):
         for key in control:
-            # TODO: refactor with list_extra.get( , default_value)
             if key in self.list_extra:
                 self.list_extra[key] = map(operator.add, self.list_extra[key], control[key])
             else:
                 self.list_extra[key] = control[key]
-
-        # return list_extra
 
     def __refine_list_extra(self):
         max_length = len(self.genes_in_lgn) + 2
@@ -166,20 +163,6 @@ class InternalValidation:
 
         for key in keys_to_be_deleted:
             self.list_extra.__delitem__(key)
-
-        # return list_extra
-
-    def check_the_control(self, control):
-        l = len(self.genes_in_lgn) + 2
-        result = []
-        for key in control:
-            for i in range(2, l):
-                if control[key][i] > control[key][1]:
-                    result.append(key)
-                    break
-
-        for gene in result:
-            print control[gene]
 
     def create_list_intra_extra(self):
         print 'create_list_intra_extra'
@@ -207,6 +190,7 @@ class InternalValidation:
             control = self.__connection_in_extra_genes_step_2(control, connected_nodes)
 
             self.check_the_control(control)
+            # self.stat_the_control(control)
 
             self.__merge_list_extra(control)
             # self.__refine_list_extra()
