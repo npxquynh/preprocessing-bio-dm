@@ -39,3 +39,8 @@ def divide_two_dim_array(array_1, array_2):
         for col in range(ncols):
             array_1[row][col] /= float(array_2[row][col])
     return array_1
+
+def mean_of_columns(matrix):
+    nrows = len(matrix)
+    ncols = len(matrix[0])
+

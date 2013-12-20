@@ -1,4 +1,5 @@
 import math
+import numpy
 import operator
 
 # TODO: remove pdb
@@ -49,7 +50,7 @@ class InternalValidation:
 
     def __refine_list_intra(self):
         number_of_blocks = float(len(self.blocks))
-
+        # TODO: handle division by zero
         for key in self.list_intra:
             self.list_intra[key] /= number_of_blocks
 
@@ -112,7 +113,6 @@ class InternalValidation:
             else:
                 # In the same block, this thing should never happen!!!
                 print "Problem!!! internal validation 1"
-                print gene
 
         return control
 
@@ -138,7 +138,6 @@ class InternalValidation:
                 else:
                     # In the same block, this thing should never happen!!!
                     print "Problem!!! internal validation 2"
-                    print gene
         return control
 
     def __merge_list_extra(self, control):
@@ -158,7 +157,7 @@ class InternalValidation:
             if self.list_extra[key][1] == 0:
                 keys_to_be_deleted.append(key)
             else:
-                for k in range(2, max_length):
+                for k in range(1, max_length):
                     self.list_extra[key][k] /= float(self.list_extra[key][0])
 
         for key in keys_to_be_deleted:
@@ -180,7 +179,6 @@ class InternalValidation:
                 if connected_nodes_in_subLGN.__contains__(gene):
                     self.list_intra[gene] += 1
 
-
             """ calculate list_extra, we just simply do it for every genes in
             the block, and then we can remove those genes in LGN
             """
@@ -201,7 +199,18 @@ class InternalValidation:
         self.FN = [ [1] * ncols for i in range(nrows) ]
         self.FP = [ [0] * ncols for i in range(nrows) ]
 
+    def largest_frequency_list_extra(self, index_of_subLGN):
+        max_freq = 0
+        for key in self.list_extra:
+            if self.list_extra[key][index_of_subLGN] > max_freq:
+                max_freq = self.list_extra[key][index_of_subLGN]
+
+        return max_freq
+
     def calculate_TPFN(self):
+        ncols = 100
+        nrows = len(self.genes_in_lgn)
+
         # True Positive & False Negative
         for (i, key) in enumerate(self.list_intra):
             # finding an index in which a remaining part
@@ -217,14 +226,42 @@ class InternalValidation:
 
         # False Positive
         # TODO: number or LGN genes
-        for i in range(self.genes_in_lgn):
-            c = 0
-            try:
-                for key in self.list_extra:
-                    c += self.list_extra[key][i + 2]
-            except IndexError:
-                print "Index error 5"
+        for i in range(0, nrows):
+            for key in self.list_extra:
+                max_freq = self.largest_frequency_list_extra(i)
+                equal_point = int(math.floor(max_freq * 100))
 
-    def statistical_result(TP, FN, FP):
-        SE = divide_two_dim_array(TP, add_two_dim_array(TP, FN))
-        return SE
+                for j in range(equal_point, ncols):
+                    self.FP[i][j] = 1
+
+    def statistical_result(self):
+        self.PPV = helper.divide_two_dim_array(self.TP,
+            helper.add_two_dim_array(self.TP, self.FP))
+        self.SE = helper.divide_two_dim_array(self.TP,
+            helper.add_two_dim_array(self.TP, self.FN))
+
+    def calculate_cutoff_frequency(self):
+        Y = numpy.mean(self.PPV, axis=0)
+        X = numpy.mean(self.SE, axis=0)
+        ones = [ 1 for i in range(100) ]
+        dist = numpy.sqrt(numpy.square(numpy.subtract(X, ones)) +
+            numpy.square(numpy.subtract(Y, ones)))
+
+        self.cutoff_frequency = min(dist)
+
+    def expansion_list(self):
+        self.create_list_intra_extra()
+        self.calculate_TPFN()
+        self.statistical_result()
+        self.calculate_cutoff_frequency()
+
+        expansion_list = []
+        for key in self.list_extra:
+            freq = self.list_extra[key][1]
+            if freq >= self.cutoff_frequency:
+                expansion_list.append([key, freq])
+
+        return expansion_list
+
+
+
