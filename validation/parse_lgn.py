@@ -10,7 +10,10 @@ def read_lgn(filepath):
         lgn_reader = csv.reader(lgn_file)
         lgn_reader.next() # skip the header row
 
-        edges_in_lgn = [row for row in lgn_reader]
+        edges_in_lgn = []
+        for row in lgn_reader:
+            gene_1, gene_2 = helper.swap(row[0], row[1])
+            edges_in_lgn.append([gene_1, gene_2])
 
     genes_in_lgn = helper.genes_from_edges(edges_in_lgn)
 

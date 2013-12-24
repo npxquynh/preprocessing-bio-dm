@@ -1,4 +1,5 @@
 import os
+import validate_datastructure as vds
 import pdb
 
 def merge_different_pc_run(code, folder):
@@ -16,6 +17,19 @@ def merge_different_pc_run(code, folder):
 
     return list_of_expanded_network_file
 
+def parse_first_line(line):
+    """
+    line = '#abc gene_1, gene_2, gene_3\n'
+    """
+    genes_in_expanded_network = set()
+
+    line = line.strip()
+    # remove the #abc at the beginning of line
+    line = line[(line.find(' ') + 1):]
+    genes_in_expanded_network = set(line.split(', ')[1:])
+
+    return genes_in_expanded_network
+
 def read_expanded_network(list_of_expanded_network_file):
     # TODO: should I use set() here?
     genes_in_tiles = []
@@ -29,7 +43,7 @@ def read_expanded_network(list_of_expanded_network_file):
             for line in f:
                 if line.startswith('#'):
                     count = count + 1
-                    genes_in_tiles.append(line)
+                    genes_in_tiles.append(parse_first_line(line))
                     blocks.append([])
                 else:
                     blocks[count].append(line.strip().split(','))

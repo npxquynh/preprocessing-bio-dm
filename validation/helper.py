@@ -44,3 +44,17 @@ def mean_of_columns(matrix):
     nrows = len(matrix)
     ncols = len(matrix[0])
 
+def swap(a, b):
+    if a > b:
+        return b,a
+    return a,b
+
+def encode_edge_key(a, b):
+    """
+    [gene_1, gene_2] ==> 'gene_1*gene_2'
+    """
+    return '%s*%s' % (a, b)
+
+def decode_edge_key(code):
+    return code.split('*')
+
