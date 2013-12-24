@@ -17,7 +17,7 @@ class InternalValidation:
         self.list_extra = dict()
         self.__generate_zero_matrices()
 
-    def __find_genes_connected_with_LGN(self, block):
+    def __find_extra_genes_connected_with_LGN(self, block):
         # connected_nodes[i] = set() = nodes connected with LGN[i]
         connected_nodes = []
         for gene in self.genes_in_lgn:
@@ -30,6 +30,7 @@ class InternalValidation:
                         nodes.add(edge[0])
                 except IndexError:
                     print "Index error"
+            # exclude those connection between LGN gene & another LGN gene
             nodes = set(nodes) - set(self.genes_in_lgn)
             connected_nodes.append(nodes)
         return connected_nodes
@@ -166,12 +167,11 @@ class InternalValidation:
     def create_list_intra_extra(self):
         print 'create_list_intra_extra'
 
-        # construct list_intra
         for gene in self.genes_in_lgn:
             self.list_intra[gene] = 0
 
         for block in self.blocks:
-            connected_nodes = self.__find_genes_connected_with_LGN(block)
+            connected_nodes = self.__find_extra_genes_connected_with_LGN(block)
 
             """ calculate list_intra """
             for (index, gene) in enumerate(self.genes_in_lgn):
@@ -207,7 +207,7 @@ class InternalValidation:
 
         return max_freq
 
-    def calculate_TPFN(self):
+    def calculate_TPFNFP(self):
         ncols = 100
         nrows = len(self.genes_in_lgn)
 
@@ -251,7 +251,7 @@ class InternalValidation:
 
     def expansion_list(self):
         self.create_list_intra_extra()
-        self.calculate_TPFN()
+        self.calculate_TPFNFP()
         self.statistical_result()
         self.calculate_cutoff_frequency()
 
