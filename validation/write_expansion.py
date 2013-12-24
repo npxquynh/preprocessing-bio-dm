@@ -1,4 +1,5 @@
 import os
+import csv
 
 def write_expansion_list(filepath, file_content):
     """
@@ -8,5 +9,6 @@ def write_expansion_list(filepath, file_content):
     ]
     """
     with open(filepath, 'w') as output_file:
+        w = csv.writer(output_file, delimiter=',')
         for line in file_content:
-            output_file.write('%s,%s\n' % (line[0], line[1]))
+            w.writerow(line)
