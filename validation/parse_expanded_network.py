@@ -9,10 +9,11 @@ def merge_different_pc_run(code, folder):
     code: all PC runs for the same network & same observation shares the same
     prefix ~ xml_filename
     """
+    PREFIX = "Expansion_At2_"
     list_of_expanded_network_file = []
     for root, dirs, files in os.walk(folder):
         for file in files:
-            if file.startswith(code):
+            if file.startswith(PREFIX + code):
                 list_of_expanded_network_file.append(os.path.join(root, file))
 
     return list_of_expanded_network_file
