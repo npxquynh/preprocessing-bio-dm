@@ -7,11 +7,12 @@ import helper
 def read_lgn(filepath):
     edges_in_lgn = []
     with open(filepath) as lgn_file:
-        lgn_reader = csv.reader(lgn_file)
+        lgn_reader = csv.reader(lgn_file, delimiter=';')
         lgn_reader.next() # skip the header row
 
         edges_in_lgn = []
         for row in lgn_reader:
+            print row
             gene_1, gene_2 = helper.swap(row[0], row[1])
             edges_in_lgn.append([gene_1, gene_2])
 

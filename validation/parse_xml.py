@@ -17,10 +17,16 @@ def read_single_xml(filepath):
     elements = tree.getroot().getchildren()
     # TODO: how to raise exception to not evaludate this function
     # and all functions after that one
-    obs = elements[0].text
-    lgn = elements[1].text
+    obs = elements[1].text
+    lgn = elements[2].text
+    lgn = change_lgn_filename(lgn)
 
     return obs, lgn
+
+def change_lgn_filename(lgn):
+    name = lgn.split("_")
+    name[3] = 'e'
+    return '_'.join(name)
 
 if __name__ == '__main__':
     xml_list = xml_list(XML_MAPPING_FOLDER)
