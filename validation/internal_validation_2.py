@@ -135,7 +135,6 @@ class InternalValidationRls:
             gene_1, gene_2 = helper.decode_edge_key(key)
             if self.__connection_is_in_lgn(gene_1, gene_2):
                 equal_point = int(math.floor(self.list_intra[key] * 100))
-                print equal_point
                 for i in range(equal_point, ncols):
                     self.TP[i] += 1
                 # for i in range(0, equal_point):
@@ -154,15 +153,16 @@ class InternalValidationRls:
                     self.FP[i] += 1
 
     def statistical_result(self):
-        self.PPV = numpy.true_divide(self.TP, numpy.add(self.TP, self.FP))
-        self.SE = numpy.true_divide(self.TP,
-            numpy.add(self.TP, self.FN))
+        TP = numpy.array(self.TP, dtype = numpy.float)
+        FP = numpy.array(self.FP, dtype = numpy.float)
+        FN = numpy.array(self.FN, dtype = numpy.float)
+        self.PPV = TP / (TP + FP)
+        self.SE = TP / (TP + FN)
 
     def calculate_cutoff_frequency(self):
         ones = [ 1 for i in range(100) ]
         dist = numpy.sqrt(numpy.square(numpy.subtract(self.PPV, ones)) +
             numpy.square(numpy.subtract(self.SE, ones)))
-        print dist
         m = min(dist)
         index = 0
         for i in range(100):
@@ -171,6 +171,7 @@ class InternalValidationRls:
 
         f = [x / 100.0 for x in range(100)]
         self.cutoff_frequency = f[index]
+        print "Cutoff Freq 2: %f" % self.cutoff_frequency
 
     def expansion_list(self):
         self.create_list_intra_extra()
@@ -182,7 +183,6 @@ class InternalValidationRls:
         expansion_list = []
         for key in self.list_extra:
             freq = self.list_extra[key][0]
-            print freq
             if freq >= self.cutoff_frequency:
                 gene_1, gene_2 = helper.decode_edge_key(key)
                 expansion_list.append([gene_1, gene_2, freq])
