@@ -17,7 +17,8 @@ import pdb
 XML_MAPPING_FOLDER = '../xml_mapping'
 PC_RESULT_FOLDER = '../expanded_network'
 LGN_FOLDER = '../lgns'
-PCIM_FOLDER = '../pcim_result'
+PCIM_FOLDER_1 = '../pcim_result_1'
+PCIM_FOLDER_2 = '../pcim_result_2'
 
 xml_list = px.xml_list(XML_MAPPING_FOLDER)
 
@@ -38,14 +39,13 @@ for xml_filepath in xml_list:
 
     expansion_list = IV.expansion_list()
 
-    expansion_filepath = helper.generate_filepath(PCIM_FOLDER, xml_filename)
+    expansion_filepath = helper.generate_filepath(PCIM_FOLDER_1, xml_filename)
     we.write_expansion_list(expansion_filepath, expansion_list)
 
     # 2nd internal validation
     IV2 = InternalValidationRls(genes_in_tiles, blocks, genes_in_lgn, edges_in_lgn)
 
     expansion_list_2 = IV2.expansion_list()
-    expansion_filepath = helper.generate_filepath(PCIM_FOLDER, xml_filename)
-    pdb.set_trace()
+    expansion_filepath = helper.generate_filepath(PCIM_FOLDER_2, xml_filename)
     we.write_expansion_list(expansion_filepath, expansion_list_2)
 

@@ -138,11 +138,15 @@ class InternalValidationRls:
                 print equal_point
                 for i in range(equal_point, ncols):
                     self.TP[i] += 1
-                for i in range(0, equal_point):
-                    self.FN[i] += 1
+                # for i in range(0, equal_point):
+                #     self.FN[i] += 1
             else:
                 for i in range(0, ncols):
                     self.FP[i] += 1
+
+        no_of_connection_in_LGN = len(self.edges_in_lgn)
+        for i in range(0,100):
+            self.FN[i] = no_of_connection_in_LGN - self.TP[i]
 
         for key in self.list_extra:
             equal_point = int(math.floor(self.list_extra[key][0] * 100))
@@ -158,8 +162,15 @@ class InternalValidationRls:
         ones = [ 1 for i in range(100) ]
         dist = numpy.sqrt(numpy.square(numpy.subtract(self.PPV, ones)) +
             numpy.square(numpy.subtract(self.SE, ones)))
+        print dist
+        m = min(dist)
+        index = 0
+        for i in range(100):
+            if m == dist[i]:
+                index = i
 
-        self.cutoff_frequency = min(dist)
+        f = [x / 100.0 for x in range(100)]
+        self.cutoff_frequency = f[index]
 
     def expansion_list(self):
         self.create_list_intra_extra()
@@ -171,6 +182,7 @@ class InternalValidationRls:
         expansion_list = []
         for key in self.list_extra:
             freq = self.list_extra[key][0]
+            print freq
             if freq >= self.cutoff_frequency:
                 gene_1, gene_2 = helper.decode_edge_key(key)
                 expansion_list.append([gene_1, gene_2, freq])
