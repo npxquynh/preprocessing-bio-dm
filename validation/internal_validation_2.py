@@ -188,6 +188,3 @@ class InternalValidationRls:
                 expansion_list.append([gene_1, gene_2, freq])
 
         return expansion_list
-
-
-
